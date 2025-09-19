@@ -3,6 +3,9 @@ import struct
 
 @dataclass
 class Entry:
+    """
+    Represents a single entry in the log-structured key-value store.
+    """
     timestamp: float
     key_size: int
     value_size: int
@@ -11,13 +14,29 @@ class Entry:
     tombstone: bool = False
 
     def is_tombstone(self) -> bool:
+        """
+        Checks if the entry is a tombstone (deletion marker).
+        Returns:
+            True if the entry is a tombstone, False otherwise.
+        """
         return self.tombstone
     
     def size(self) -> int:
-        # 8 (timestamp) + 4 (key_size) + 4 (value_size) + 1 (tombstone)
+        """
+        Returns the total size of the serialized entry in bytes.
+        8 bytes for timestamp + 4 bytes for key_size + 4 bytes for value_size +
+        1 byte for tombstone flag + key_size + value_size
+        Returns:
+            The size of the serialized entry in bytes.
+        """
         return 8 + 4 + 4 + 1 + self.key_size + self.value_size
 
     def serialize(self) -> bytes:
+        """
+        Serializes the entry to bytes for storage.
+        Returns:
+            A bytes object representing the serialized entry.
+        """
         tombstone_flag = b'\x01' if self.tombstone else b'\x00'
         return (
             struct.pack('>d', self.timestamp) +
@@ -30,6 +49,15 @@ class Entry:
         
     @staticmethod
     def deserialize(data: bytes) -> 'Entry':
+        """
+        Deserializes bytes back into an Entry object.
+        Args:
+            data: A bytes object representing the serialized entry.
+        Returns:
+            An Entry object.
+        Raises:
+            ValueError: If the data is too short to be a valid Entry.
+        """
         if len(data) < 17:
             raise ValueError("Data too short to be a valid Entry")
         
