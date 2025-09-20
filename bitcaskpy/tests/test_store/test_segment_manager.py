@@ -5,6 +5,9 @@ from src.store.segment_manager import SegmentManager
 import time
 import pytest
 
+DEFAULT_TEST_MAX_SEGMENT_SIZE = 1024 * 1024 * 10
+DEFAULT_TEST_MAX_SEGMENT_ENTRIES = 100
+
 @pytest.fixture
 def setup_tmp_dir(tmp_path):
     yield tmp_path
@@ -14,8 +17,11 @@ def setup_tmp_dir(tmp_path):
             child.unlink()
     tmp_path.rmdir()
     
+def init_segment_manager(base_directory: str) -> SegmentManager:
+    return SegmentManager(base_directory, max_segment_size=DEFAULT_TEST_MAX_SEGMENT_SIZE, max_segment_entries=DEFAULT_TEST_MAX_SEGMENT_ENTRIES)
+
 def test_segment_manager_init_with_no_segments(setup_tmp_dir):
-    manager = SegmentManager(str(setup_tmp_dir))
+    manager = init_segment_manager(str(setup_tmp_dir))
     assert manager.base_directory == str(setup_tmp_dir)
     assert isinstance(manager.segments, dict)
     assert len(manager.segments) == 1
@@ -34,7 +40,7 @@ def test_segment_manager_init_with_existing_segments(setup_tmp_dir):
     assert manager.next_segment_id == 2
     
 def test_segment_manager_append_and_rollover(setup_tmp_dir):
-    manager = SegmentManager(str(setup_tmp_dir))
+    manager = init_segment_manager(str(setup_tmp_dir))
     active_segment = manager.get_active_segment()
     
     entry = Entry(
@@ -63,7 +69,7 @@ def test_segment_manager_append_and_rollover(setup_tmp_dir):
     assert active_segment.is_active() is False
 
 def test_segment_manager_read_entry(setup_tmp_dir):
-    manager = SegmentManager(str(setup_tmp_dir))
+    manager = init_segment_manager(str(setup_tmp_dir))
     entry = Entry(
         timestamp=time.time(),
         key_size=3,
@@ -78,6 +84,6 @@ def test_segment_manager_read_entry(setup_tmp_dir):
     assert read_entry == entry
     
 def test_segment_manager_read_nonexistent_segment(setup_tmp_dir):
-    manager = SegmentManager(str(setup_tmp_dir))
+    manager = init_segment_manager(str(setup_tmp_dir))
     with pytest.raises(ValueError, match="Segment 999 not found"):
         manager.read(999, 0)

@@ -1,15 +1,18 @@
 from src.store.segment import Segment
 from src.store.entry import Entry
+from src.config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES
 
 import os
 from typing import Dict
 
 class SegmentManager:
-    def __init__(self, base_directory: str):
+    def __init__(self, base_directory: str, max_segment_size: int = DEFAULT_MAX_SEGMENT_SIZE, max_segment_entries: int = DEFAULT_MAX_SEGMENT_ENTRIES):
         self.base_directory = base_directory
         self.segments: Dict[int, Segment] = {}
         self.active_segment_id: int = None
         self.next_segment_id: int = 0
+        self.max_segment_size = max_segment_size
+        self.max_segment_entries = max_segment_entries
         
         os.makedirs(base_directory, exist_ok=True)
         
@@ -34,7 +37,7 @@ class SegmentManager:
         """
         Create a new active segment
         """
-        segment = Segment.new_segment(self.next_segment_id, self.base_directory)
+        segment = Segment.new_segment(self.next_segment_id, self.base_directory, self.max_segment_size, self.max_segment_entries)
         self.segments[self.next_segment_id] = segment
         self.active_segment_id = self.next_segment_id
         self.next_segment_id += 1

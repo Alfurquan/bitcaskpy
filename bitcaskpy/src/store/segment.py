@@ -2,12 +2,12 @@ from dataclasses import dataclass
 import time
 from src.store.entry import Entry
 
+from src.config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES, DEFAULT_METADATA_SYNC_INTERVAL_SECONDS
+
 import os
 import json
 
-DEFAULT_MAX_SEGMENT_SIZE = 1024 * 1024 * 10
-DEFAULT_MAX_SEGMENT_ENTRIES = 1000
-DEFAULT_METADATA_SYNC_INTERVAL_SECONDS = 60
+
 
 @dataclass
 class Segment:
