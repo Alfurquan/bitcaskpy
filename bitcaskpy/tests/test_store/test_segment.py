@@ -65,7 +65,7 @@ def test_segment_append_and_read(tmp_path):
     
     segment.append(entry)
     
-    read_entry = segment.read(0, entry.size())
+    read_entry = segment.read(0)
     assert read_entry == entry
     
 def test_segment_append_exceeds_size(setup_tmp_dir):
@@ -126,7 +126,7 @@ def test_open_segment_after_close(setup_tmp_dir):
     assert reopened.max_size == segment.max_size
     assert reopened.max_entries == segment.max_entries
     
-    read_entry = reopened.read(0, entry.size())
+    read_entry = reopened.read(0)
     assert read_entry == entry
     
 def test_open_segment_missing_metadata(setup_tmp_dir):

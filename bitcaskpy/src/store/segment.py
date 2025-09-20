@@ -108,18 +108,34 @@ class Segment:
         """
         return self.active and not self.closed
     
-    def read(self, offset: int, length: int) -> Entry:
+    def read(self, offset: int) -> Entry:
         """
-        Reads a portion of the segment file from the given offset.
+        Reads an entry from the segment file at the given offset.
         Args:
             offset: The byte offset to start reading from.
-            length: The number of bytes to read.
         Returns:
             An Entry object read from the segment.
         """
         with open(self.filepath, 'rb') as f:
             f.seek(offset)
-            return Entry.deserialize(f.read(length))
+            
+            # Read the fixed header first (17 bytes)
+            header = f.read(17)
+            if len(header) < 17:
+                raise ValueError("Invalid entry: insufficient data")
+            
+            # Extract sizes from header
+            key_size = int.from_bytes(header[8:12], 'big')
+            value_size = int.from_bytes(header[12:16], 'big')
+            
+            # Read the variable parts
+            variable_data = f.read(key_size + value_size)
+            if len(variable_data) < key_size + value_size:
+                raise ValueError("Invalid entry: truncated data")
+            
+            # Combine and deserialize
+            full_entry_data = header + variable_data
+            return Entry.deserialize(full_entry_data)
     
     @staticmethod
     def new_segment(id: int, base_path: str, max_size: int = DEFAULT_MAX_SEGMENT_SIZE, max_entries: int = DEFAULT_MAX_SEGMENT_ENTRIES) -> 'Segment':
