@@ -1,8 +1,7 @@
 import os
-from src.store.segment import Segment
-from src.store.entry import Entry
-from src.store.segment_manager import SegmentManager
-from src.store.hash_table import HashTable
+from bitcaskpy.store.entry import Entry
+from bitcaskpy.store.segment_manager import SegmentManager
+from bitcaskpy.store.hash_table import HashTable
 
 import time
 import pytest

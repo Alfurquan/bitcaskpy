@@ -1,8 +1,5 @@
 import os
-from src.store.segment import Segment
-from src.store.entry import Entry
-from src.store.segment_manager import SegmentManager
-from src.store.bitcask_store import BitcaskStore
+from bitcaskpy import BitcaskStore
 
 import pytest
 

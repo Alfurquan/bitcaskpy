@@ -1,6 +1,6 @@
-from src.store.segment import Segment
-from src.store.entry import Entry
-from src.config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES
+from bitcaskpy.store.segment import Segment
+from bitcaskpy.store.entry import Entry
+from bitcaskpy.config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES
 
 import os
 from typing import Dict, List

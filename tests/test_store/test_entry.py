@@ -1,4 +1,4 @@
-from src.store.entry import Entry
+from bitcaskpy.store.entry import Entry
 
 def test_entry_roundtrip():
     original = Entry(

@@ -3,8 +3,8 @@ import json
 import os
 from typing import Dict
 
-from src.store.segment_manager import SegmentManager
-from src.store.segment import Segment
+from bitcaskpy.store.segment_manager import SegmentManager
+from bitcaskpy.store.segment import Segment
 
 @dataclass
 class HashTableEntry:
