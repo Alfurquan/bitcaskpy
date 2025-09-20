@@ -99,3 +99,16 @@ class SegmentManager:
             List[Segment]: List of all segments
         """
         return list(self.segments.values())
+    
+    def get_segment(self, segment_id: int) -> Segment:
+        """
+        Get a specific segment by ID
+        Args:
+            segment_id (int): The ID of the segment
+        Returns:
+            Segment: The requested segment
+        """
+        segment = self.segments.get(segment_id)
+        if segment is None:
+            raise ValueError(f"Segment {segment_id} not found")
+        return segment
