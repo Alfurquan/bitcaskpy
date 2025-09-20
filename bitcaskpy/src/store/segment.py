@@ -1,13 +1,10 @@
 from dataclasses import dataclass
 import time
 from src.store.entry import Entry
-
 from src.config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES, DEFAULT_METADATA_SYNC_INTERVAL_SECONDS
 
 import os
 import json
-
-
 
 @dataclass
 class Segment:
@@ -153,9 +150,12 @@ class Segment:
         
         filepath = f"{base_path}/segment_{id}.log"
         metadata_filepath = f"{base_path}/segment_{id}.hint"
+        index_filepath = f"{filepath}.index"
+        
         open(filepath, 'a').close()
         open(metadata_filepath, 'a').close()
-        
+        open(index_filepath, 'a').close()
+
         segment = Segment(
             id=id,
             filepath=filepath,
@@ -291,6 +291,7 @@ class Segment:
         if self.is_full():
             raise ValueError("Segment is full")
     
+        offset = self.size
         entry_size = entry_data.size()
         if self.size + entry_size > self.max_size:
             raise ValueError("Segment is full")
@@ -304,10 +305,38 @@ class Segment:
         self.size += len(serialized_data)
         self.num_entries += 1
         
+        self._log_index_entry(
+            key=entry_data.key.decode('utf-8', errors='ignore'),
+            offset=offset,
+            size=entry_data.value_size,
+            timestamp=entry_data.timestamp
+        )
+        
         # Periodically sync metadata
         if time.time() - self.last_sync >= self.metadata_sync_interval:
             self._sync_metadata()
+    
+    def _log_index_entry(self, key: str, offset: int, size: int, timestamp: float):
+        """
+        Logs an index entry to the index file.
+        Args:
+            key: The key of the entry.
+            offset: The byte offset of the entry in the segment file.
+            size: The size of the entry in bytes.
+            timestamp: The timestamp of the entry.        
+        """
         
+        index_filepath = f"{self.filepath}.index"
+        entry_line = json.dumps({
+            'key': key,
+            'offset': offset,
+            'size': size, 
+            'timestamp': timestamp
+        }) + '\n'
+        
+        with open(index_filepath, 'a') as f:
+            f.write(entry_line)
+    
     def _sync_metadata(self) -> None:
         """
         Syncs the segment metadata to disk

@@ -3,7 +3,14 @@ from src.store.entry import Entry
 from src.config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES
 
 import os
-from typing import Dict
+from typing import Dict, List
+from dataclasses import dataclass
+
+@dataclass
+class AppendResult:
+    segment_id: int
+    offset: int
+    entry_size: int
 
 class SegmentManager:
     def __init__(self, base_directory: str, max_segment_size: int = DEFAULT_MAX_SEGMENT_SIZE, max_segment_entries: int = DEFAULT_MAX_SEGMENT_ENTRIES):
@@ -50,11 +57,13 @@ class SegmentManager:
         """
         return self.segments[self.active_segment_id]
     
-    def append(self, entry: Entry) -> None:
+    def append(self, entry: Entry) -> AppendResult:
         """
         Append an entry to the active segment, rolling over if needed
         Args:
             entry (Entry): The entry to append
+        Returns:
+            AppendResult: The result of the append operation
         """
         active_segment = self.get_active_segment()
         if active_segment.is_full():
@@ -62,6 +71,12 @@ class SegmentManager:
             self._create_active_segment()
             active_segment = self.get_active_segment()
         active_segment.append(entry)
+        
+        return AppendResult(
+            segment_id=active_segment.id,
+            offset=active_segment.size - entry.size(),
+            entry_size=entry.size()
+        )
         
     def read(self, segment_id: int, offset: int) -> Entry:
         """
@@ -77,3 +92,10 @@ class SegmentManager:
             raise ValueError(f"Segment {segment_id} not found")
         return segment.read(offset)
     
+    def get_segments(self) -> List[Segment]:
+        """
+        Get all segments managed by this manager
+        Returns:
+            List[Segment]: List of all segments
+        """
+        return list(self.segments.values())

@@ -30,6 +30,15 @@ class Entry:
             The size of the serialized entry in bytes.
         """
         return 8 + 4 + 4 + 1 + self.key_size + self.value_size
+    
+    def header_size(self) -> int:
+        """
+        Returns the size of the entry header (metadata) in bytes.
+        8 bytes for timestamp + 4 bytes for key_size + 4 bytes for value_size + 1 byte for tombstone flag
+        Returns:
+            The size of the entry header in bytes.
+        """
+        return 8 + 4 + 4 + 1
 
     def serialize(self) -> bytes:
         """
