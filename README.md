@@ -2,6 +2,8 @@
 
 Bitcask-inspired KV store (learning project).
 
+![architecture](./docs//images/Architecture.png)
+
 Journey for the work documented [here](./docs/JOURNEY.md).
 
 Architecture documented [here](./docs/ARCHITECTURE.md).
