@@ -11,8 +11,8 @@ authors = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "bitcaskpy == 0.1.0",
-    "click == 8.1.0"
+    "bitcaskpy-client==0.1.0",
+    "click==8.1.0"
 ]
 
 [tool.setuptools]

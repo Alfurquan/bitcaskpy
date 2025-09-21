@@ -14,18 +14,6 @@ Inspired from Bitcask, I read these resources:
 
 ---
 
-## Project Structure
-
-The project is organized into two main packages:
-
-```
-/workspace/projects/bitcaskpy/
-├── core/           # Core package
-└── cli/            # CLI package (separate)
-```
-
----
-
 ## Phased Approach
 
 I decided to take a phased approach to the project and the steps are outlined in this [document](../plan.md)

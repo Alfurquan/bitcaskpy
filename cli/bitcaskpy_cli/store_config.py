@@ -5,6 +5,7 @@ CONFIG_PATH = os.path.expanduser("~/.bitcask/config.json")
 
 DEFAULT_CONFIG = {
     "data_dir": "./data",
+    "server_url": "http://localhost:8000",
 }
 
 def load_config():

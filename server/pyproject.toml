@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitcaskpy-server"
+version = "0.1.0"
+description = "HTTP server for BitcaskPy key-value store."
+authors = [
+    { name = "Alfurquan", email = "zahedilalfurquan20@gmail.com" }
+]
+requires-python = ">=3.9"
+dependencies = [
+    "bitcaskpy==0.1.0",
+    "fastapi==0.104.1",
+    "uvicorn==0.24.0"
+]
+
+[project.scripts]
+bitcask-server = "bitcaskpy_server.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bitcaskpy_server*"]
