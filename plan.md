@@ -214,7 +214,7 @@ BitcaskStore
 
 ---
 
-## Phase 3.6 - Store CLI implementation
+## Phase 3.6 - Store CLI implementation ✅ **COMPLETED**
 
 - Goals
   - Implement a simple command-line interface (CLI) for interacting with the store.
@@ -237,28 +237,7 @@ BitcaskStore
 
 ---
 
-### Phase 3.8 - Add structured logging
-
-- Goals
-  - Implement structured logging for better observability and debugging.
-  - Use a logging library that supports different log levels and formats (e.g., JSON).
-  - Log key events such as store operations, errors, recovery steps, and performance metrics.
-
-- Baby steps
-  1. Choose a logging library (e.g., Python's built-in logging with JSON formatter).
-  2. Set up a logging configuration that supports different log levels (DEBUG, INFO, ERROR).
-  3. Replace print statements with appropriate logging calls throughout the codebase.
-  4. Add structured log messages for key events (e.g., "PUT key", "GET key", "Segment rotated").
-  5. Document logging configuration and usage in README or separate docs.
-
-- Acceptance
-  - Logging is implemented consistently across the codebase.
-  - Log messages are structured and provide useful context.
-  - Logging configuration is documented.
-
----
-
-## Phase 3.9 - Store Server implementation (Optional, nice to have)
+## Phase 3.8 - Store Server implementation ✅ **COMPLETED**
 
 - Goals
   - Implement a simple TCP Server or API Server using Flask/FastAPI for remote access to the store.
@@ -280,6 +259,26 @@ BitcaskStore
   - Documentation provides clear usage instructions.
 
 ---
+
+### Phase 3.9 - Add structured logging
+
+- Goals
+  - Implement structured logging for better observability and debugging.
+  - Use a logging library that supports different log levels and formats (e.g., JSON).
+  - Log key events such as store operations, errors, recovery steps, and performance metrics.
+
+- Baby steps
+  1. Choose a logging library (e.g., Python's built-in logging with JSON formatter).
+  2. Set up a logging configuration that supports different log levels (DEBUG, INFO, ERROR).
+  3. Replace print statements with appropriate logging calls throughout the codebase.
+  4. Add structured log messages for key events (e.g., "PUT key", "GET key", "Segment rotated").
+  5. Document logging configuration and usage in README or separate docs.
+
+- Acceptance
+  - Logging is implemented consistently across the codebase.
+  - Log messages are structured and provide useful context.
+  - Logging configuration is documented.
+
 
 ## Phase 4 — Compaction (Merge) and Tombstones
 
