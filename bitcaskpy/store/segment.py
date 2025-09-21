@@ -13,6 +13,7 @@ class Segment:
     Attributes:
         id: Unique identifier for the segment.
         filepath: Path to the segment file.
+        metadata_filepath: Path to the segment's metadata file.
         size: Current size of the segment in bytes.
         num_entries: Number of entries in the segment.
         active: Whether the segment is active (open for writes).
