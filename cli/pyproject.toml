@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitcaskpy-cli"
+version = "0.1.0"
+description = "Command-line interface for BitcaskPy key-value store."
+authors = [
+    { name = "Alfurquan", email = "zahedilalfurquan20@gmail.com" }
+]
+requires-python = ">=3.9"
+dependencies = [
+    "bitcaskpy == 0.1.0",
+    "click == 8.1.0"
+]
+
+[tool.setuptools]
+packages = ["bitcaskpy_cli"]
+
+[project.scripts]
+bitcask = "bitcaskpy_cli.main:cli"

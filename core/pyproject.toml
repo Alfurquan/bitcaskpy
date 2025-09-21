@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitcaskpy"
+version = "0.1.0"
+description = "A log-structured key-value store inspired by Bitcask, implemented in Python."
+authors = [
+    { name = "Alfurquan", email = "zahedilalfurquan20@gmail.com" }
+]
+requires-python = ">=3.9"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bitcaskpy*"]

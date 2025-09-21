@@ -1,6 +1,6 @@
-from bitcaskpy.store.segment import Segment
-from bitcaskpy.store.entry import Entry
-from bitcaskpy.store.segment_manager import SegmentManager
+from core.bitcaskpy.store.segment import Segment
+from core.bitcaskpy.store.segment_manager import SegmentManager
+from core.bitcaskpy.store.entry import Entry
 
 import time
 import pytest

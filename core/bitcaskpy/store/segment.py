@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import time
-from bitcaskpy.store.entry import Entry
-from bitcaskpy.config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES, DEFAULT_METADATA_SYNC_INTERVAL_SECONDS
+from .entry import Entry
+from ..config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES, DEFAULT_METADATA_SYNC_INTERVAL_SECONDS
 
 import os
 import json

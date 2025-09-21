@@ -1,6 +1,6 @@
-from bitcaskpy.store.hash_table import HashTable
-from bitcaskpy.store.entry import Entry
-from bitcaskpy.store.segment_manager import SegmentManager
+from .hash_table import HashTable
+from .entry import Entry
+from .segment_manager import SegmentManager
 
 import time
 
