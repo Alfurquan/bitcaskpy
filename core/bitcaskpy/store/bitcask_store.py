@@ -51,7 +51,7 @@ class BitcaskStore:
         segment = self.segment_manager.get_segment(hash_entry.segment_id)
         entry = segment.read(hash_entry.value_pos)
         if entry.tombstone:
-            raise KeyError(f"Key '{key}' not found (tombstoned)")
+            return None
         
         return entry.value.decode('utf-8')
     
