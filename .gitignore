@@ -9,3 +9,6 @@ __pycache__/
 data/
 *.egg-info/
 build/
+*.hint
+*.index
+*.log

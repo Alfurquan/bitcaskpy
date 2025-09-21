@@ -27,6 +27,7 @@ class Segment:
     id: int
     filepath: str
     metadata_filepath: str
+    index_filepath: str
     size: int
     num_entries: int
     active: bool
@@ -47,6 +48,7 @@ class Segment:
             'id': self.id,
             'filepath': self.filepath,
             'metadata_filepath': self.metadata_filepath,
+            'index_filepath': self.index_filepath,
             'size': self.size,
             'num_entries': self.num_entries,
             'active': self.active,
@@ -71,6 +73,7 @@ class Segment:
             id=data['id'],
             filepath=data['filepath'],
             metadata_filepath=data['metadata_filepath'],
+            index_filepath=data['index_filepath'],
             size=data['size'],
             num_entries=data['num_entries'],
             active=data['active'],
@@ -151,7 +154,7 @@ class Segment:
         
         filepath = f"{base_path}/segment_{id}.log"
         metadata_filepath = f"{base_path}/segment_{id}.hint"
-        index_filepath = f"{filepath}.index"
+        index_filepath = f"{base_path}/segment_{id}.index"
         
         open(filepath, 'a').close()
         open(metadata_filepath, 'a').close()
@@ -161,6 +164,7 @@ class Segment:
             id=id,
             filepath=filepath,
             metadata_filepath=metadata_filepath,
+            index_filepath=index_filepath,
             size=0,
             num_entries=0,
             active=True,
@@ -180,20 +184,73 @@ class Segment:
             id: Unique identifier for the segment.
             base_path: Base directory path for segment files.
         Returns:
-            A Segment object representing the opened segment.
+            A Segment object.
         """
         filepath = f"{base_path}/segment_{id}.log"
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Segment file {filepath} does not exist")
-        
+
         metadata_filepath = f"{base_path}/segment_{id}.hint"
         if not os.path.exists(metadata_filepath):
             return Segment._scan_and_rebuild_metadata(id, base_path)
 
         with open(metadata_filepath, 'r') as f:
             metadata = json.load(f)
-        
-        return Segment.from_dict(metadata)
+
+        segment = Segment.from_dict(metadata)
+
+        actual_size = os.path.getsize(filepath)
+        if actual_size != segment.size:
+            if actual_size > segment.size:
+                segment.size = actual_size
+                segment.num_entries = Segment._count_entries_in_file(filepath)
+            elif actual_size < segment.size:
+                segment.size = actual_size
+                segment.num_entries = Segment._count_entries_in_file(filepath) if actual_size > 0 else 0
+
+            segment.last_sync = time.time()
+
+        return segment
+
+    @staticmethod
+    def _count_entries_in_file(filepath: str) -> int:
+        """
+        Fast entry counting without full reconstruction
+        Args:
+            filepath: Path to the segment file.
+        Returns:
+            Estimated number of entries in the segment file.
+        """
+        size = os.path.getsize(filepath)
+        if size == 0:
+            return 0
+
+        num_entries = 0
+        try:
+            with open(filepath, 'rb') as f:
+                offset = 0
+                while offset < size:
+                    if offset + 17 > size:
+                        break
+                    
+                    f.seek(offset)
+                    fixed_part = f.read(17)
+                    if len(fixed_part) < 17:
+                        break
+                    
+                    key_size = int.from_bytes(fixed_part[8:12], 'big')
+                    value_size = int.from_bytes(fixed_part[12:16], 'big')
+                    entry_size = 17 + key_size + value_size
+
+                    if entry_size <= 0 or offset + entry_size > size:
+                        break
+                    
+                    offset += entry_size
+                    num_entries += 1
+        except Exception:
+            return 0
+
+        return num_entries
     
     @staticmethod
     def _scan_and_rebuild_metadata(id: int, base_path: str) -> 'Segment':
@@ -210,6 +267,7 @@ class Segment:
             raise FileNotFoundError(f"Segment file {filepath} does not exist")
 
         metadata_filepath = f"{base_path}/segment_{id}.hint"
+        index_filepath = f"{base_path}/segment_{id}.index"
         size = os.path.getsize(filepath)
         num_entries = 0
 
@@ -218,6 +276,7 @@ class Segment:
                 id=id,
                 filepath=filepath,
                 metadata_filepath=metadata_filepath,
+                index_filepath=index_filepath,
                 size=0,
                 num_entries=0,
                 active=False,
@@ -267,6 +326,7 @@ class Segment:
             id=id,
             filepath=filepath,
             metadata_filepath=metadata_filepath,
+            index_filepath=index_filepath,
             size=size,
             num_entries=num_entries,
             active=False,
@@ -327,7 +387,7 @@ class Segment:
             timestamp: The timestamp of the entry.        
         """
         
-        index_filepath = f"{self.filepath}.index"
+        index_filepath = self.index_filepath
         entry_line = json.dumps({
             'key': key,
             'offset': offset,

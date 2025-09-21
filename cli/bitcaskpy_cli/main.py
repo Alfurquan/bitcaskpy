@@ -2,6 +2,22 @@ import click
 from bitcaskpy_cli.store_config import load_config, save_config
 import bitcaskpy
 
+
+#--------------
+# Store context
+#--------------
+
+class BitcaskContext:
+    def __init__(self):
+        self._store = None
+    
+    @property
+    def store(self):
+        if self._store is None:
+            config = load_config()
+            self._store = bitcaskpy.open_store(config["data_dir"])
+        return self._store
+
 # -------------------------
 # Config Commands
 # -------------------------
@@ -34,36 +50,35 @@ def config_list():
 # Data Commands
 # -------------------------
 @click.group()
-def cli():
+@click.pass_context
+def cli(ctx):
     """Bitcask CLI"""
-    pass
+    ctx.ensure_object(BitcaskContext)
 
 @cli.command()
 @click.argument("key")
 @click.argument("value")
-def put(key, value):
+@click.pass_obj
+def put(ctx, key, value):
     """Insert or update a key-value pair"""
-    config = load_config()
-    db = bitcaskpy.open_store(config["data_dir"])
-    db.put(key, value)
+    ctx.store.put(key, value)
     click.echo(f"Inserted {key} -> {value}")
 
 @cli.command()
 @click.argument("key")
-def get(key):
+@click.pass_obj
+def get(ctx, key):
     """Retrieve a value for a key"""
-    config = load_config()
-    db = bitcaskpy.open_store(config["data_dir"])
-    value = db.get(key)
+    value = ctx.store.get(key)
     click.echo(value if value else "Key not found")
 
 @cli.command()
+
 @click.argument("key")
-def delete(key):
+@click.pass_obj
+def delete(ctx, key):
     """Delete a key"""
-    config = load_config()
-    db = bitcaskpy.open_store(config["data_dir"])
-    db.delete(key)
+    ctx.store.delete(key)
     click.echo(f"Deleted {key}")
 
 # -------------------------

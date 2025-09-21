@@ -5,9 +5,6 @@ CONFIG_PATH = os.path.expanduser("~/.bitcask/config.json")
 
 DEFAULT_CONFIG = {
     "data_dir": "./data",
-    "fsync": False,
-    "fsync_periodic": 0,
-    "max_segment_size": "128MB"
 }
 
 def load_config():

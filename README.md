@@ -2,6 +2,29 @@
 
 Bitcask-inspired KV store (learning project).
 
+## Using the cli
+
+1. Activate a virtual environment:
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+   ```
+
+2. Install the package:
+
+   ```bash
+    pip install ./core
+    pip install ./cli
+    ```
+3. Use the `bitcask` command:
+    ```bash
+    bitcask put mykey myvalue
+    bitcask get mykey
+    bitcask delete mykey
+    bitcask config list
+    ```
+
 ## Quickstart (for developers)
 
 Prerequisites: Python 3.10+ and `pip`.
@@ -31,7 +54,8 @@ Prerequisites: Python 3.10+ and `pip`.
 
 ## Project layout
 
-- `bitcaskpy/` — package sources
+- `core/` — Core library code
+- `cli/` — Command-line interface
 - `tests/` — pytest tests
 - `docs/` — design notes and API sketches
 

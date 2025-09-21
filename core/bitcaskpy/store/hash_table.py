@@ -49,7 +49,7 @@ class HashTable:
         Args:
             segment (Segment): The segment to recover from
         """
-        index_file_path = f"{segment.filepath}.index"
+        index_file_path = segment.index_filepath
         if os.path.exists(index_file_path):
             self._load_from_index_file(segment, index_file_path)
         else:
