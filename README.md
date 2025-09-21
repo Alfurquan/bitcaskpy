@@ -2,6 +2,8 @@
 
 Bitcask-inspired KV store (learning project).
 
+Journey for the work documented [here](./docs/JOURNEY.md).
+
 ## Using the cli
 
 1. Activate a virtual environment:
