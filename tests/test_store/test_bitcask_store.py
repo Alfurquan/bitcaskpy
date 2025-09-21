@@ -26,8 +26,7 @@ def test_bitcask_store_delete(setup_tmp_dir):
     assert store.get('key1') == 'value1'
     
     store.delete('key1')
-    with pytest.raises(KeyError):
-        store.get('key1')
+    assert store.get('key1') is None
         
 def test_bitcask_store_recovery(setup_tmp_dir):
     store = BitcaskStore(str(setup_tmp_dir))
@@ -44,8 +43,7 @@ def test_bitcask_store_recovery(setup_tmp_dir):
     assert store.get('key2') == 'value2'
     
     store.delete('key1')
-    with pytest.raises(KeyError):
-        store.get('key1')
+    assert store.get('key1') is None
         
 def test_bitcask_store_overwrite(setup_tmp_dir):
     store = BitcaskStore(str(setup_tmp_dir))
@@ -57,8 +55,8 @@ def test_bitcask_store_overwrite(setup_tmp_dir):
     
 def test_bitcask_store_nonexistent_key(setup_tmp_dir):
     store = BitcaskStore(str(setup_tmp_dir))
-    with pytest.raises(KeyError):
-        store.get('nonexistent_key')
+    value = store.get('nonexistent_key')
+    assert value is None
         
 def test_bitcask_store_large_value(setup_tmp_dir):
     store = BitcaskStore(str(setup_tmp_dir))
