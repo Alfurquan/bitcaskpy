@@ -45,7 +45,7 @@ def put(key, value):
     """Insert or update a key-value pair"""
     config = load_config()
     db = bitcaskpy.open_store(config["data_dir"])
-    db.put(key.encode(), value.encode())
+    db.put(key, value)
     click.echo(f"Inserted {key} -> {value}")
 
 @cli.command()
@@ -54,8 +54,8 @@ def get(key):
     """Retrieve a value for a key"""
     config = load_config()
     db = bitcaskpy.open_store(config["data_dir"])
-    value = db.get(key.encode())
-    click.echo(value.decode() if value else "Key not found")
+    value = db.get(key)
+    click.echo(value if value else "Key not found")
 
 @cli.command()
 @click.argument("key")
@@ -63,7 +63,7 @@ def delete(key):
     """Delete a key"""
     config = load_config()
     db = bitcaskpy.open_store(config["data_dir"])
-    db.delete(key.encode())
+    db.delete(key)
     click.echo(f"Deleted {key}")
 
 # -------------------------
