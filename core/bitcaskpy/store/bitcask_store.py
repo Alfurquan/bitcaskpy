@@ -36,17 +36,17 @@ class BitcaskStore:
         append_result = self.segment_manager.append(entry)
         self.hash_table.put(key, append_result.segment_id, append_result.offset, entry.value_size, timestamp)
         
-    def get(self, key: str) -> str:
+    def get(self, key: str) -> str | None:
         """
         Retrieve a value by key from the store.
         Args:
             key (str): The key to retrieve.
         Returns:
-            str: The value associated with the key.
+            str: The value associated with the key or None if not found.
         """
         hash_entry = self.hash_table.get(key)
         if not hash_entry:
-            raise KeyError(f"Key '{key}' not found")
+            return None
         
         segment = self.segment_manager.get_segment(hash_entry.segment_id)
         entry = segment.read(hash_entry.value_pos)

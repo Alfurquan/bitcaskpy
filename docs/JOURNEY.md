@@ -19,9 +19,9 @@ Inspired from Bitcask, I read these resources:
 The project is organized into two main packages:
 
 ```
-/workspace/projects/logkv-store/
-├── bitcaskpy/           # Core package
-└── bitcask-cli/         # CLI package (separate)
+/workspace/projects/bitcaskpy/
+├── core/           # Core package
+└── cli/            # CLI package (separate)
 ```
 
 ---
