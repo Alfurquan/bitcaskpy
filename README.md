@@ -43,13 +43,13 @@ bitcaskpy get hello
 The storage engine - dependency-free core functionality.
 
 
-#### 2. Server (`server/bitcaskpy-server`)
+#### 2. Server
 HTTP API server providing REST endpoints for the key-value store.
 
 **Usage:**
 ```bash
 # Start server
-bitcask-server --host 0.0.0.0 --port 8000 --data-dir ./data
+bitcaskpy-server --host 0.0.0.0 --port 8000 --data-dir ./data
 
 # Server endpoints:
 # PUT /kv/{key} - Store key-value pair
@@ -58,7 +58,7 @@ bitcask-server --host 0.0.0.0 --port 8000 --data-dir ./data
 # GET /health - Health check
 ```
 
-#### 3. Client (`client/bitcaskpy-client`)
+#### 3. Client
 HTTP client library for connecting to BitcaskPy server.
 
 
@@ -71,20 +71,20 @@ client.put("key", "value")
 value = client.get("key")
 ```
 
-#### 4. CLI (`cli/bitcaskpy-cli`)
+#### 4. CLI
 Command-line interface that connects to BitcaskPy server.
 
 **Usage:**
 ```bash
 # Configure server URL
-bitcask config set server_url http://localhost:8000
+bitcaskpy config set server_url http://localhost:8000
 
 # Use CLI commands
-bitcask put key value
-bitcask get key
-bitcask delete key
-bitcask health
-bitcask ping
+bitcaskpy put key value
+bitcaskpy get key
+bitcaskpy delete key
+bitcaskpy health
+bitcaskpy ping
 ```
 
 ### Architecture Benefits
