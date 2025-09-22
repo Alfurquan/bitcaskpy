@@ -3,6 +3,7 @@ click==8.1.0
 requests==2.31.0
 fastapi==0.104.1
 uvicorn==0.24.0
+structlog==22.1.0
 
 # Development dependencies
 pytest>=7.0.0
