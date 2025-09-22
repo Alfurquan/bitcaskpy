@@ -1,5 +1,5 @@
-from core.bitcaskpy.store.segment import Segment
-from core.bitcaskpy.store.entry import Entry
+from app.core.store.segment import Segment
+from app.core.store.entry import Entry
 
 import time
 import os

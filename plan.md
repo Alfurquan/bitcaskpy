@@ -260,162 +260,55 @@ BitcaskStore
 
 ---
 
-### Phase 3.9 - Add structured logging
+## Post MVP Phases (4-7+)
 
-- Goals
-  - Implement structured logging for better observability and debugging.
-  - Use a logging library that supports different log levels and formats (e.g., JSON).
-  - Log key events such as store operations, errors, recovery steps, and performance metrics.
+- **Phase 4**: Observability & Monitoring
+  - Structured Logging: Replace print statements with structured logs (JSON format)
+  - Metrics Collection: Request latency, throughput, error rates, active connections
+  - Health Checks: /health endpoint for load balancer integration
+  - Distributed Tracing: Correlation IDs across client→server→storage
 
-- Baby steps
-  1. Choose a logging library (e.g., Python's built-in logging with JSON formatter).
-  2. Set up a logging configuration that supports different log levels (DEBUG, INFO, ERROR).
-  3. Replace print statements with appropriate logging calls throughout the codebase.
-  4. Add structured log messages for key events (e.g., "PUT key", "GET key", "Segment rotated").
-  5. Document logging configuration and usage in README or separate docs.
+- **Phase 5**: Reliability Patterns
+  - Graceful Shutdown: Handle SIGTERM, drain connections, sync metadata
+  - Circuit Breaker: Fail fast when storage is unavailable
+  - Retry with Backoff: Exponential backoff for transient failures
+  - Timeout Management: Request timeouts to prevent resource exhaustion
 
-- Acceptance
-  - Logging is implemented consistently across the codebase.
-  - Log messages are structured and provide useful context.
-  - Logging configuration is documented.
+- **Phase 6**: Concurrency Control
+  - Reader-Writer Locks: Multiple readers, single writer (Bitcask pattern)
+  - Segment-Level Locking: Fine-grained locking for better performance
+  - Background Tasks: Async metadata syncing, compaction scheduling
+  - Connection Pooling: HTTP client connection reuse
 
+- **Phase 7**: Performance optimizations
+  - Compaction: Background merging of segments to reclaim space
+  - Bloom Filters: Fast negative lookups to avoid unnecessary disk reads
+  - Memory-Mapped Files: Faster segment reads
+  - Batch Operations: Bulk put/get/delete for efficiency
 
-## Phase 4 — Compaction (Merge) and Tombstones
+- **Phase 8**: Operational Features
+  - Configuration Management:  YAML/JSON config files, environment variables
+  - Authentication & Authorization: API key or token-based access control
+  - Rate Limiting: Prevent abuse and ensure fair usage
+  - Admin API: Endpoints for stats, config changes, manual compaction
 
-- Goals
-  - Implement compaction (merge) to remove historical versions and tombstones and reclaim space.
+- **Phase 9**: Distributed systems (stretch goals)
+  - Replication: Master-slave or multi-master replication for high availability
+  - Sharding: Distribute keys across multiple nodes
+  - Consensus Protocols: Raft or Paxos for strong consistency
+  - Conflict Resolution: Vector clocks, last-write-wins
 
-- Baby steps
-  1. Design compaction strategy: choose some segments to merge into a new compacted segment by copying only the latest live keys.
-  2. Implement a merger process that reads old segments, writes live records to a new segment, builds a new index for that segment.
-  3. Swap segments atomically (use rename) and delete old segments after swap.
-  4. Add tombstone handling: deletes are preserved long enough to ensure replication/durability, then removed by compaction.
-  5. Add tests for compaction correctness, atomic swap behavior, and crash during compaction (partial compaction should not break correctness).
+- **Phase 10**: Data management features
+  - Schema Evolution: Versioned data formats
+  - Multi-Version Concurrency Control: Read snapshots
+  - Transactions: ACID properties for multi-key operations
+  - Secondary Indexes: Query by value, range queries
 
-- Acceptance
-  - Compaction reclaims space and leaves store in consistent state even on crash mid-compaction.
-
-- Experiments
-  - Measure disk footprint before/after compaction and compaction throughput.
-
----
-
-## Phase 6 — Durability and Crash Consistency
-
-- Goals
-  - Decide durability model and implement safe flushing options (fsync per write, batched fsync, or background).
-
-- Baby steps
-  1. Add configurable durability levels: `no-fsync`, `fsync-on-append`, `periodic-fsync`.
-  2. Implement atomic index persistence (if you persist index externally): write to temp file then atomic rename.
-  3. Add tests that simulate sudden power loss (truncate file mid-record) and check recovery semantics for each durability mode.
-
-- Acceptance
-  - Behavior matches documented durability guarantees for each mode.
-
-- Tradeoffs
-  - Per-write fsync = stronger durability, lower throughput; batched fsync = higher throughput, potential data loss window.
-
----
-
-## Phase 7 — Concurrency and Locking
-
-- Goals
-  - Make the store safe under concurrent readers and writers (threads/processes).
-
-- Baby steps
-  1. Decide concurrency model: single-writer multiple-reader (Bitcask-style) or concurrent writers with file-level locking.
-  2. Implement in-process locks (`threading.RLock`) for internal state; for multi-process, use a file lock mechanism.
-  3. Ensure compaction runs without blocking reads; coordinate compaction and active writers.
-  4. Add tests with many concurrent readers/writers verifying correctness.
-
-- Acceptance
-  - No data races or corruption in multi-threaded tests; cross-process locking prevents concurrent writers from corrupting segments.
-
----
-
-## Phase 8 — Performance Improvements
-
-- **Goals**
-  - Optimize for speed and memory usage
-  - Add performance monitoring
-  - Tune critical paths
-  - Add bloom filters to reduce unnecessary disk reads
-
-- **Baby steps**
-  1. Add memory-mapped file reads for better performance
-  2. Implement batched writes to reduce syscall overhead  
-  3. Profile and optimize hot paths
-  4. Add performance benchmarks
-  5. Consider compression for values
-  6. Add bloom filters per segment to reduce disk reads
-
-- **Acceptance**
-  - Measurable performance improvements
-  - Benchmark suite shows progress
-  - Bloom filters reduce unnecessary disk reads
-
----
-
-## Phase 9 — Advanced Index Enhancements (1–2 weeks)
-
-- **Goals**
-  - Reduce memory footprint for large keyspaces
-  - Add bloom filters for faster negative lookups
-  - Implement index persistence optimizations
-
-- **Baby steps**
-  1. Add bloom filters per segment to reduce disk reads
-  2. Implement tiered indexing (hot vs cold keys)
-  3. Add binary index format for reduced memory usage
-  4. Optimize index recovery performance
-
-- **Acceptance**
-  - Reduced memory usage for large datasets
-  - Faster negative lookups with bloom filters
-
----
-
-## Phase 10 — Testing, Benchmarks, and Observability
-
-- **Goals**
-  - Comprehensive test coverage
-  - Performance benchmarking
-  - Production monitoring capabilities
-
-- **Baby steps** (many already done!)
-  1. ✅ Deterministic unit tests for all components
-  2. ✅ Integration tests for segment and hash table recovery
-  3. Add end-to-end integration tests for store operations
-  4. Create benchmark suite for operations/sec measurements
-  5. Add metrics collection and logging
-  6. Chaos testing (random failures, corruption)
-
-- **Acceptance**
-  - High test coverage with reliable failure detection
-  - Reproducible benchmarks
-  - Good observability for production use
-
----
-
-## Phase 11 — System design extensions (weeks)
-
-- Goals
-  - Add basic replication (leader-follower) or sharding for distributed scenarios.
-  - Explore networking layer for remote access.
-  - Add sharding for horizontal scaling.
-  - Consider eventual consistency models.
-
-- Baby steps
-  1. Implement an append-only replication stream from leader to followers (simple TCP-based tailing).
-  2. Ensure idempotence: follower applies each record once; handle gaps on reconnect.
-  3. Consider consistent hashing for sharding keys across multiple instances.
-  4. Add tests to simulate follower lag and recovery.
-
-- Acceptance
-  - Followers converge to leader state; simple failure/reconnect scenarios handled.
-
----
+- **Phase 11**: Advanced caching
+  - Write-Through Cache: In-memory value cache
+  - LRU Eviction: Memory pressure management
+  - Cache Warming: Preload frequently accessed keys
+  - Cache Coherence: Invalidation strategies
 
 ## Project hygiene & micro-tasks (apply each phase)
 

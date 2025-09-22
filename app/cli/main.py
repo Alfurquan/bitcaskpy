@@ -1,7 +1,6 @@
 import click
-from bitcaskpy_cli.store_config import load_config, save_config
-from bitcaskpy_client import BitcaskClient
-from bitcaskpy_client.client import BitcaskClientError, BitcaskConnectionError
+from .store_config import load_config, save_config
+from ..client import BitcaskClient, BitcaskClientError, BitcaskConnectionError
 
 def get_client():
     """Get BitcaskClient instance with error handling"""

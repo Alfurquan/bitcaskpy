@@ -1,13 +1,13 @@
 ## Project Architecture till now
 
-The project is organized into four main packages:
+The project is organized into four main modules:
 
 ```
-/workspace/projects/bitcaskpy/
-├── core/           # Core package
-└── cli/            # CLI package (separate)
-├── server/         # Server package (separate)
-└── client/         # Client package (separate)
+/workspace/projects/bitcaskpy/app/
+├── core/           # Core module
+└── cli/            # CLI module (separate)
+├── server/         # Server module (separate)
+└── client/         # Client module (separate)
 ```
 
 ## Architecture Overview
@@ -61,7 +61,7 @@ CLI Command: `bitcask get foo`
 
 ### Clean Separation of Concerns
 
-- **Core**: Pure Python library for Bitcask storage engine
+- **Core**: Pure Python module for Bitcask storage engine
 - **Server**: HTTP API server managing a long-running store instance
 - **Client**: HTTP client library for easy integration
 - **CLI**: Command-line tool for local and remote administration

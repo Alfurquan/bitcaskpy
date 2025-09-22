@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional
-import bitcaskpy
+from .. import open_store
 
 # Request/Response models
 class PutRequest(BaseModel):
@@ -36,7 +36,7 @@ def create_app(data_dir: str = "./data") -> FastAPI:
     )
 
     # Initialize store and attach to app state
-    app.state.store = bitcaskpy.open_store(data_dir)
+    app.state.store = open_store(data_dir)
 
     @app.get("/health", response_model=HealthResponse)
     async def health_check():

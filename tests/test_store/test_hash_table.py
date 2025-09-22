@@ -1,7 +1,7 @@
 import os
-from core.bitcaskpy.store.entry import Entry
-from core.bitcaskpy.store.segment_manager import SegmentManager
-from core.bitcaskpy.store.hash_table import HashTable
+from app.core.store.entry import Entry
+from app.core.store.segment_manager import SegmentManager
+from app.core.store.hash_table import HashTable
 
 import time
 import pytest

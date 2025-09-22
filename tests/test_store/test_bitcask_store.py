@@ -1,5 +1,5 @@
 import os
-from core.bitcaskpy import BitcaskStore
+from app.core import BitcaskStore
 
 import pytest
 

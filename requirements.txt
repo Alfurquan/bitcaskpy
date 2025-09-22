@@ -1,4 +1,11 @@
-pytest==8.4.2
+# Core dependencies
+click==8.1.0
+requests==2.31.0
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
 black==24.3.0
 flake8==7.1.0
-click==8.1.7
