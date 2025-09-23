@@ -1,6 +1,11 @@
 import click
+import uuid
+
 from .store_config import load_config, save_config
 from ..client import BitcaskClient, BitcaskClientError, BitcaskConnectionError
+from ..logging.logger_factory import LoggerFactory
+
+logger = LoggerFactory.get_logger("cli")
 
 def get_client():
     """Get BitcaskClient instance with error handling"""
@@ -52,50 +57,66 @@ def config_list():
     for k, v in config.items():
         click.echo(f"{k} = {v}")
 
+
 # -------------------------
-# Data Commands
+# Top-level CLI group
 # -------------------------
 @click.group()
-def cli():
+@click.option("--debug", is_flag=True, help="Enable debug logging")
+@click.pass_context
+def cli(ctx, debug):
     """Bitcask CLI - HTTP client for BitcaskPy server"""
-    pass
+    ctx.ensure_object(dict)
+    ctx.obj['DEBUG'] = debug
+
+
+def debug_log(ctx, msg, **kwargs):
+    if ctx.obj.get('DEBUG'):
+        logger.debug(msg, **kwargs)
 
 @cli.command()
+@click.pass_context
 @click.argument("key")
 @click.argument("value")
-def put(key, value):
+def put(ctx, key, value):
     """Insert or update a key-value pair"""
     try:
         client = get_client()
-        response = client.put(key, value)
+        response, request_id = client.put(key, value)
+        debug_log(ctx, "cli_command", operation="put", key=key, request_id=request_id)
         click.echo(f"Inserted {key} -> {value}")
     except BitcaskClientError as e:
         click.echo(f"Error: {e}", err=True)
         raise click.Abort()
 
 @cli.command()
+@click.pass_context
 @click.argument("key")
-def get(key):
+def get(ctx, key):
     """Retrieve a value for a key"""
     try:
         client = get_client()
-        value = client.get(key)
+        value, request_id = client.get(key)
         if value is not None:
+            debug_log(ctx, "cli_command", operation="get", key=key, request_id=request_id)
             click.echo(value)
         else:
+            debug_log(ctx, "cli_command", operation="get", key=key, request_id=request_id, message="Key not found")
             click.echo("Key not found")
     except BitcaskClientError as e:
         click.echo(f"Error: {e}", err=True)
         raise click.Abort()
 
 @cli.command()
+@click.pass_context
 @click.argument("key")
-def delete(key):
+def delete(ctx, key):
     """Delete a key"""
     try:
         client = get_client()
-        response = client.delete(key)
+        response, request_id = client.delete(key)
         click.echo(f"Deleted {key}")
+        debug_log(ctx, "cli_command", operation="delete", key=key, request_id=request_id)
     except BitcaskClientError as e:
         click.echo(f"Error: {e}", err=True)
         raise click.Abort()

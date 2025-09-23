@@ -19,8 +19,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["app", "app.core", "app.core.config", "app.core.store", "app.cli", "app.server", "app.client"]
-
+packages = ["app", "app.core", "app.core.config", "app.core.store", "app.cli", "app.server", "app.client", "app.logging"]
 [project.scripts]
 bitcaskpy = "app.cli.main:cli"
 bitcaskpy-server = "app.server.main:main"

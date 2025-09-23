@@ -2,7 +2,5 @@ from app.logging.logger_factory import LoggerFactory
 
 logger = LoggerFactory.get_logger("demo", service="log_demo")
 
-logger.info("Some demo log message")
-logger.error("An error occurred", error_code=500)
-logger.debug("Debugging info")
-logger.warning("This is a warning")
+logger.info("Demo event", message="This is a demo log message", user="tester")
+logger.error("Demo error", error_code=500, error_message="Simulated error occurred")

@@ -2,9 +2,12 @@ from dataclasses import dataclass
 import time
 from .entry import Entry
 from ..config.defaults import DEFAULT_MAX_SEGMENT_SIZE, DEFAULT_MAX_SEGMENT_ENTRIES, DEFAULT_METADATA_SYNC_INTERVAL_SECONDS
+from ...logging.logger_factory import LoggerFactory
 
 import os
 import json
+
+logger = LoggerFactory.get_logger(__name__, service="segment")
 
 @dataclass
 class Segment:
@@ -123,6 +126,12 @@ class Segment:
             # Read the fixed header first (17 bytes)
             header = f.read(17)
             if len(header) < 17:
+                logger.error(
+                    "segment_read",
+                    segment_id=self.id,
+                    offset=offset,
+                    message="Failed to read full entry header"
+                )
                 raise ValueError("Invalid entry: insufficient data")
             
             # Extract sizes from header
@@ -132,6 +141,12 @@ class Segment:
             # Read the variable parts
             variable_data = f.read(key_size + value_size)
             if len(variable_data) < key_size + value_size:
+                logger.error(
+                    "segment_read",
+                    segment_id=self.id,
+                    offset=offset,
+                    message="Failed to read full entry data"
+                )
                 raise ValueError("Invalid entry: truncated data")
             
             # Combine and deserialize
@@ -186,12 +201,23 @@ class Segment:
         Returns:
             A Segment object representing the opened segment.
         """
+        logger.info(
+            "segment_open",
+            segment_id=id,
+            message=f"Opening segment {id} from {base_path}"
+        )
+        
         filepath = f"{base_path}/segment_{id}.log"
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Segment file {filepath} does not exist")
         
         metadata_filepath = f"{base_path}/segment_{id}.hint"
         if not os.path.exists(metadata_filepath):
+            logger.warning(
+                "segment_metadata_missing",
+                segment_id=id,
+                message=f"Metadata file {metadata_filepath} missing, rebuilding metadata"
+            )
             return Segment._scan_and_rebuild_metadata(id, base_path)
 
         with open(metadata_filepath, 'r') as f:
@@ -266,7 +292,12 @@ class Segment:
 
         except Exception as e:
             # If we can't parse the file, log the error but continue with what we have
-            print(f"Warning: Error scanning segment file {filepath}: {e}")
+            logger.error(
+                "segment_rebuild_metadata",
+                segment_id=id,
+                error=str(e),
+                message="Error rebuilding segment metadata, using partial data"
+            )
             # num_entries will be whatever we counted before the error
 
         segment = Segment(
@@ -302,9 +333,24 @@ class Segment:
         offset = self.size
         entry_size = entry_data.size()
         if self.size + entry_size > self.max_size:
+            logger.error(
+                "segment_append",
+                segment_id=self.id,
+                entry_size=entry_size,
+                current_size=self.size,
+                max_size=self.max_size,
+                message="Cannot append entry, segment size limit exceeded"
+            )
             raise ValueError("Segment is full")
         
         if self.num_entries + 1 > self.max_entries:
+            logger.error(
+                "segment_append",
+                segment_id=self.id,
+                current_entries=self.num_entries,
+                max_entries=self.max_entries,
+                message="Cannot append entry, segment entry limit exceeded"
+            )
             raise ValueError("Segment is full")
             
         serialized_data = entry_data.serialize()
@@ -319,7 +365,12 @@ class Segment:
             size=entry_data.value_size,
             timestamp=entry_data.timestamp
         )
-        
+        logger.info(
+            "segment_index_log",
+            segment_id=self.id,
+            message=f"Logged index entry for key '{entry_data.key.decode('utf-8', errors='ignore')}' at offset {offset}"
+        )
+
         # Periodically sync metadata
         if time.time() - self.last_sync >= self.metadata_sync_interval:
             self._sync_metadata()

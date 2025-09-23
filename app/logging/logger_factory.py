@@ -1,4 +1,3 @@
-import logging
 import structlog
 from app.logging import logging_config
 

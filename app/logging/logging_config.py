@@ -5,6 +5,7 @@ import logging
 # Configure structlog for JSON structured logging
 structlog.configure(
     processors=[
+        structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_log_level,
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.format_exc_info,

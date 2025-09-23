@@ -5,6 +5,7 @@ from typing import Dict
 
 from .segment_manager import SegmentManager
 from .segment import Segment
+from ...logging.logger_factory import LoggerFactory
 
 @dataclass
 class HashTableEntry:
@@ -33,6 +34,7 @@ class HashTableEntry:
 class HashTable:
     def __init__(self):
         self.table: Dict[str, HashTableEntry] = {}
+        self.logger = LoggerFactory.get_logger(__name__, service="hash-table")
         
     def recover_from_segment_manager(self, segment_manager: SegmentManager) -> None:
         """
@@ -40,8 +42,18 @@ class HashTable:
         Args:
             segment_manager (SegmentManager): The segment manager to recover from
         """
+        self.logger.info(
+            "hash_table_recovery",
+            message="Starting hash table recovery from segments",
+            segment_count=len(segment_manager.get_segments())
+        )
         for segment in segment_manager.get_segments():
             self._recover_from_segment(segment)
+        self.logger.info(
+            "hash_table_recovery",
+            message="Completed hash table recovery",
+            entry_count=len(self.table)
+        )
             
     def _recover_from_segment(self, segment) -> None:
         """
@@ -51,8 +63,19 @@ class HashTable:
         """
         index_file_path = segment.index_filepath
         if os.path.exists(index_file_path):
+            self.logger.info(
+                "hash_table_recovery",
+                message="Index file found, loading from index",
+                index_file_path=index_file_path
+            )
             self._load_from_index_file(segment, index_file_path)
         else:
+            self.logger.info(
+                "hash_table_recovery",
+                message="Index file not found, rebuilding from segment scan",
+                segment_id=segment.id,
+                segment_file_path=segment.filepath
+            )
             self._rebuild_from_segment_scan(segment)
             
     def _load_from_index_file(self, segment: Segment, index_file_path: str) -> None:
@@ -81,11 +104,18 @@ class HashTable:
                                 timestamp=entry['timestamp']
                             )
                     except (json.JSONDecodeError, KeyError) as e:
-                        print(f"Error parsing line {line_num} in index file {index_file_path}: {e}")
+                        self.logger.error(
+                            "hash_table_recovery",
+                            message=f"Error parsing line {line_num} in index file {index_file_path}: {e}",
+                            line=line
+                        )
                         continue
         
         except Exception as e:
-            print(f"Error loading index file {index_file_path}: {e}")
+            self.logger.error(
+                "hash_table",
+                message=f"Error loading index file {index_file_path}: {e}"
+            )
             self._rebuild_from_segment_scan(segment)
             
     def _rebuild_from_segment_scan(self, segment: Segment) -> None:
@@ -115,7 +145,10 @@ class HashTable:
                 
                 offset += entry_size
         except Exception as e:
-            print(f"Error scanning segment {segment.id}: {e}")
+            self.logger.error(
+                "hash_table_recovery",
+                message=f"Error scanning segment {segment.filepath}: {e}"
+            )
     
     def get(self, key: str) -> HashTableEntry:
         """

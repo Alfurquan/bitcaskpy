@@ -1,5 +1,6 @@
 import requests
 import os
+import uuid
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -19,33 +20,31 @@ class BitcaskClient:
     """HTTP client for BitcaskPy server"""
     
     def __init__(self, base_url: Optional[str] = None, timeout: int = 30):
-        """
-        Initialize BitcaskClient
-        
-        Args:
-            base_url: Server URL (default: from env BITCASK_SERVER or http://localhost:8000)
-            timeout: Request timeout in seconds
-        """
         self.base_url = base_url or os.getenv('BITCASK_SERVER', 'http://localhost:8000')
         self.timeout = timeout
-        
-        # Ensure base_url ends with /
         if not self.base_url.endswith('/'):
             self.base_url += '/'
     
-    def _make_request(self, method: str, endpoint: str, **kwargs):
-        """Make HTTP request with error handling"""
+    def _make_request(self, method: str, endpoint: str, **kwargs) -> tuple[dict, str]:
+        """
+        Make HTTP request with error handling and request ID generation.
+        Returns tuple: (response_json, request_id)
+        """
         url = urljoin(self.base_url, endpoint)
+        request_id = str(uuid.uuid4())
+        headers = kwargs.pop('headers', {})
+        headers['x-request-id'] = request_id
         
         try:
             response = requests.request(
                 method=method,
                 url=url,
                 timeout=self.timeout,
+                headers=headers,
                 **kwargs
             )
             response.raise_for_status()
-            return response.json()
+            return response.json(), request_id
         except requests.exceptions.ConnectionError as e:
             raise BitcaskConnectionError(f"Could not connect to server at {self.base_url}: {e}")
         except requests.exceptions.Timeout as e:
@@ -59,88 +58,33 @@ class BitcaskClient:
         except requests.exceptions.RequestException as e:
             raise BitcaskClientError(f"Request failed: {e}")
     
-    def put(self, key: str, value: str) -> dict:
-        """
-        Store a key-value pair
-        
-        Args:
-            key: The key to store
-            value: The value to store
-            
-        Returns:
-            Server response dict
-            
-        Raises:
-            BitcaskClientError: If the operation fails
-        """
-        return self._make_request(
-            'PUT',
-            f'kv/{key}',
-            json={'value': value}
-        )
+    # -------------------------
+    # API methods
+    # -------------------------
+    def put(self, key: str, value: str) -> tuple[dict, str]:
+        """Store a key-value pair; returns (response, request_id)"""
+        return self._make_request('PUT', f'kv/{key}', json={'value': value})
     
-    def get(self, key: str) -> Optional[str]:
-        """
-        Retrieve a value by key
-        
-        Args:
-            key: The key to retrieve
-            
-        Returns:
-            The value if found, None if not found
-            
-        Raises:
-            BitcaskClientError: If the operation fails
-        """
-        response = self._make_request('GET', f'kv/{key}')
-        return response['value'] if response['found'] else None
+    def get(self, key: str) -> tuple[Optional[str], str]:
+        """Retrieve a value by key; returns (value_or_none, request_id)"""
+        response, request_id = self._make_request('GET', f'kv/{key}')
+        value = response['value'] if response.get('found') else None
+        return value, request_id
     
-    def delete(self, key: str) -> dict:
-        """
-        Delete a key
-        
-        Args:
-            key: The key to delete
-            
-        Returns:
-            Server response dict
-            
-        Raises:
-            BitcaskClientError: If the operation fails
-        """
+    def delete(self, key: str) -> tuple[dict, str]:
+        """Delete a key; returns (response, request_id)"""
         return self._make_request('DELETE', f'kv/{key}')
     
-    def health(self) -> dict:
-        """
-        Check server health
-        
-        Returns:
-            Health status dict
-            
-        Raises:
-            BitcaskClientError: If the operation fails
-        """
+    def health(self) -> tuple[dict, str]:
+        """Check server health; returns (response, request_id)"""
         return self._make_request('GET', 'health')
     
-    def list_keys(self) -> dict:
-        """
-        List all keys (if supported by server)
-        
-        Returns:
-            Keys list or message
-            
-        Raises:
-            BitcaskClientError: If the operation fails
-        """
+    def list_keys(self) -> tuple[dict, str]:
+        """List all keys; returns (response, request_id)"""
         return self._make_request('GET', 'kv')
     
     def ping(self) -> bool:
-        """
-        Simple connectivity test
-        
-        Returns:
-            True if server is reachable, False otherwise
-        """
+        """Connectivity test; returns True if reachable"""
         try:
             self.health()
             return True

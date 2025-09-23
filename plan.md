@@ -268,17 +268,17 @@ BitcaskStore
   - Health Checks: /health endpoint for load balancer integration
   - Distributed Tracing: Correlation IDs across client→server→storage
 
-- **Phase 5**: Reliability Patterns
-  - Graceful Shutdown: Handle SIGTERM, drain connections, sync metadata
-  - Circuit Breaker: Fail fast when storage is unavailable
-  - Retry with Backoff: Exponential backoff for transient failures
-  - Timeout Management: Request timeouts to prevent resource exhaustion
-
-- **Phase 6**: Concurrency Control
+- **Phase 5**: Concurrency Control
   - Reader-Writer Locks: Multiple readers, single writer (Bitcask pattern)
   - Segment-Level Locking: Fine-grained locking for better performance
   - Background Tasks: Async metadata syncing, compaction scheduling
   - Connection Pooling: HTTP client connection reuse
+
+- **Phase 6**: Reliability Patterns
+  - Graceful Shutdown: Handle SIGTERM, drain connections, sync metadata
+  - Circuit Breaker: Fail fast when storage is unavailable
+  - Retry with Backoff: Exponential backoff for transient failures
+  - Timeout Management: Request timeouts to prevent resource exhaustion
 
 - **Phase 7**: Performance optimizations
   - Compaction: Background merging of segments to reclaim space
@@ -288,9 +288,9 @@ BitcaskStore
 
 - **Phase 8**: Operational Features
   - Configuration Management:  YAML/JSON config files, environment variables
-  - Authentication & Authorization: API key or token-based access control
+  - Authentication & Authorization: API key or token-based access control (optional)
   - Rate Limiting: Prevent abuse and ensure fair usage
-  - Admin API: Endpoints for stats, config changes, manual compaction
+  - Admin API: Endpoints for stats, config changes, manual compaction (Optional)
 
 - **Phase 9**: Distributed systems (stretch goals)
   - Replication: Master-slave or multi-master replication for high availability
@@ -298,7 +298,7 @@ BitcaskStore
   - Consensus Protocols: Raft or Paxos for strong consistency
   - Conflict Resolution: Vector clocks, last-write-wins
 
-- **Phase 10**: Data management features
+- **Phase 10**: Data management features (Optional)
   - Schema Evolution: Versioned data formats
   - Multi-Version Concurrency Control: Read snapshots
   - Transactions: ACID properties for multi-key operations
