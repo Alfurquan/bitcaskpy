@@ -274,17 +274,17 @@ BitcaskStore
   - Background Tasks: Async metadata syncing, compaction scheduling
   - Connection Pooling: HTTP client connection reuse
 
-- **Phase 6**: Reliability Patterns
-  - Graceful Shutdown: Handle SIGTERM, drain connections, sync metadata
-  - Circuit Breaker: Fail fast when storage is unavailable
-  - Retry with Backoff: Exponential backoff for transient failures
-  - Timeout Management: Request timeouts to prevent resource exhaustion
-
-- **Phase 7**: Performance optimizations
+- **Phase 6**: Performance optimizations
   - Compaction: Background merging of segments to reclaim space
   - Bloom Filters: Fast negative lookups to avoid unnecessary disk reads
   - Memory-Mapped Files: Faster segment reads
   - Batch Operations: Bulk put/get/delete for efficiency
+
+- **Phase 7**: Reliability Patterns
+  - Graceful Shutdown: Handle SIGTERM, drain connections, sync metadata
+  - Circuit Breaker: Fail fast when storage is unavailable
+  - Retry with Backoff: Exponential backoff for transient failures
+  - Timeout Management: Request timeouts to prevent resource exhaustion
 
 - **Phase 8**: Operational Features
   - Configuration Management:  YAML/JSON config files, environment variables
